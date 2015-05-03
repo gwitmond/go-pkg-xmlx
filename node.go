@@ -357,18 +357,24 @@ func (this *Node) Ab(namespace, name string) bool {
 
 // Returns true if this node has the specified attribute. False otherwise.
 func (this *Node) HasAttr(namespace, name string) bool {
+	return this.SelectAttr(namespace, name) != nil
+}
+
+// Select the attribute by name
+func (this *Node) SelectAttr(namespace, name string) *Attr {
 	for _, v := range this.Attributes {
 		if namespace != "*" && namespace != v.Name.Space {
 			continue
 		}
 
 		if name == "*" || name == v.Name.Local {
-			return true
+			return v
 		}
 	}
 
-	return false
+	return nil
 }
+
 
 // Select single node by name
 func (this *Node) SelectNode(namespace, name string) *Node {
@@ -414,6 +420,35 @@ func rec_SelectNodes(cn *Node, namespace, name string, list *[]*Node, recurse bo
 
 	for _, v := range cn.Children {
 		rec_SelectNodes(v, namespace, name, list, recurse)
+	}
+}
+
+// Select multiple nodes by name and/or attribute
+func (this *Node) SelectNodesNameAttr(namespace, name, attr string) []*Node {
+	list := make([]*Node, 0, 16)
+	rec_SelectNodesNameAttr(this, namespace, name, attr, &list, false)
+	return list
+}
+
+// Select multiple nodes by name or attribute
+func (this *Node) SelectNodesNameAttrRecursive(namespace, name, attr string) []*Node {
+	list := make([]*Node, 0, 16)
+	rec_SelectNodesNameAttr(this, namespace, name, attr, &list, true)
+	return list
+}
+
+// Get it from document.rec_SelectNodesNameAttr(...)
+func rec_SelectNodesNameAttr(cn *Node, namespace, name, attr string, list *[]*Node, recurse bool) {
+	if (namespace == "*" || cn.Name.Space == namespace) && (name == "*" || cn.Name.Local == name) &&
+		cn.HasAttr("*", attr) {
+		*list = append(*list, cn)
+		if !recurse {
+			return
+		}
+	}
+
+ 	for _, v := range cn.Children {
+		rec_SelectNodesNameAttr(v, namespace, name, attr, list, recurse)
 	}
 }
 

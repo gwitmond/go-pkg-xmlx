@@ -92,6 +92,17 @@ func (this *Document) SelectNodesRecursive(namespace, name string) []*Node {
 	return this.Root.SelectNodesRecursive(namespace, name)
 }
 
+// Select all nodes with the given namespace and name, that have the named attribute
+func (this *Document) SelectNodesNameAttr(namespace, name, attr string) []*Node {
+	return this.Root.SelectNodesNameAttr(namespace, name, attr)
+}
+
+// Select all nodes with the given namespace and name, also recursing into the
+// children of those matches. Returns an empty slice if no matches were found.
+func (this *Document) SelectNodesNameAttrRecursive(namespace, name, attr string) []*Node {
+	return this.Root.SelectNodesNameAttrRecursive(namespace, name, attr)
+}
+
 // Load the contents of this document from the supplied reader.
 func (this *Document) LoadStream(r io.Reader, charset CharsetFunc) (err error) {
 	xp := xml.NewDecoder(r)
